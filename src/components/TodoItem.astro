@@ -1,0 +1,16 @@
+---
+export interface Props {
+  todo: { id: number; text: string; completed: boolean };
+}
+const { todo } = Astro.props;
+---
+<li class="todo-item" id={`todo-${todo.id}`}>
+    {todo.text} {todo.completed ? ' (Completed)' : ''}
+    <button
+        class="delete-button"
+        hx-delete={`/api/todos/${todo.id}`}
+        hx-target="closest .todo-item"
+        hx-swap="outerHTML">
+        Delete
+    </button>
+</li>
