@@ -1,18 +1,35 @@
 ---
 // src/components/TodoList.astro
 import { getTodos, deleteTodo } from '../lib/todo';
-import TodoItem from './TodoItem.astro'; 
+import TodoItem from './TodoItem.astro';
 
 const todos = await getTodos();
 ---
-<div>
-  <form id="add-todo-form" hx-post="/api/todos" hx-target="#todo-list-container" hx-swap="beforeend">
-    <input type="text" name="text" id="new-todo-text" placeholder="Add a new todo" required>
-    <button type="submit">Add Todo</button>
+<div class="container mx-auto max-w-2xl p-6">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">My Todo List</h1>
+
+  <form id="add-todo-form" hx-post="/api/todos" hx-target="#todo-list-container" hx-swap="beforeend" class="mb-6">
+    <div class="flex gap-2">
+      <input
+        type="text"
+        name="text"
+        id="new-todo-text"
+        placeholder="Add a new todo"
+        required
+        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+      <button
+        type="submit"
+        class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        Add Todo
+      </button>
+    </div>
   </form>
-  <ul id="todo-list-container">
+
+  <ul id="todo-list-container" class="space-y-2">
     {todos.map(todo => (
-        <TodoItem todo={todo} /> 
+        <TodoItem todo={todo} />
     ))}
   </ul>
 </div>
