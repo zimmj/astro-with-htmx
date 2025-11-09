@@ -1,11 +1,15 @@
 ---
-import {addTodo} from '../../../lib/todo.js';
+import { addTodo } from '../../../lib/todo';
 import TodoItem from '../../../components/TodoItem.astro';
+import type { Todo } from '../../../lib/todo';
 
-let newTodo = null;
+let newTodo: Todo | null = null;
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
-  newTodo = await addTodo(formData.get('text'));
+  const text = formData.get('text');
+  if (typeof text === 'string') {
+    newTodo = await addTodo(text);
+  }
 }
 export const prerender = false;
 ---

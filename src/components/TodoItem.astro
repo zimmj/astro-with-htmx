@@ -1,8 +1,14 @@
 ---
+import type { Todo } from '../lib/todo';
+
 export interface Props {
-  todo: { id: number; text: string; completed: boolean };
+  todo: Todo | null;
 }
 const { todo } = Astro.props;
+
+if (!todo) {
+  return null;
+}
 ---
 <li
   class="todo-item bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center justify-between hover:shadow-md transition-shadow duration-200"
