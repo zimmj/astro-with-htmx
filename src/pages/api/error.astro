@@ -1,0 +1,11 @@
+---
+import Alert from "../../components/ui/Alert.astro";
+import type { AlertType } from "../../types";
+
+export const prerender = false;
+
+const url = new URL(Astro.request.url);
+const message: string = url.searchParams.get('message') || 'An error occured';
+const type: AlertType = (url.searchParams.get('type') as AlertType) || 'error'
+---
+<Alert type={type} message={message}></Alert>
