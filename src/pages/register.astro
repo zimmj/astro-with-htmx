@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Input from '../components/ui/Input.astro';
+import Button from '../components/ui/Button.astro';
+import Link from '../components/ui/Link.astro';
+---
+
+<BaseLayout
+  title="Register"
+  description="Create your account on Virtual Visual"
+  keywords="register, signup, create account"
+>
+  <main class="container mx-auto px-4 py-8">
+    <div class="mb-8 text-center">
+      <h1 class="mb-2 text-3xl font-bold">Register</h1>
+      <p class="text-gray-600">
+        Already have an account?
+        <Link href="/signin">Sign in</Link>
+      </p>
+    </div>
+
+    <div class="mx-auto max-w-md">
+      <form
+        action="/api/auth/register"
+        method="post"
+        class="space-y-6 rounded-lg border border-gray-200 bg-white p-8 shadow-lg"
+      >
+        <Input
+          label="Email"
+          type="email"
+          name="email"
+          id="email"
+          required
+          placeholder="you@example.com"
+        />
+
+        <Input
+          label="Password"
+          type="password"
+          name="password"
+          id="password"
+          required
+          minlength={8}
+          placeholder="••••••••"
+          helperText="Must be at least 8 characters"
+        />
+
+        <Button type="submit" fullWidth>Register</Button>
+      </form>
+    </div>
+  </main>
+</BaseLayout>
