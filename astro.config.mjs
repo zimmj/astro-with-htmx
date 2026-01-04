@@ -6,6 +6,9 @@ import tailwind from '@astrojs/tailwind';
 
 // https://astro.build/config
 export default defineConfig({
-  adapter: netlify(),
+  adapter: netlify({
+    edgeMiddleware: false
+  }),
   integrations: [tailwind()],
+  output: 'server'
 });
