@@ -18,6 +18,7 @@ export const POST: APIRoute = async ({ request, redirect }) => {
   });
 
   if (error) {
+    const html = ``
     return new Response(error.message, { status: 500 });
   }
 

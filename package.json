@@ -14,10 +14,10 @@
     "type-check": "astro check"
   },
   "dependencies": {
-    "@astrojs/node": "^9.5.0",
-    "@astrojs/tailwind": "^5.1.4",
+    "@astrojs/node": "^9.5.1",
+    "@astrojs/tailwind": "^6.0.2",
     "@supabase/supabase-js": "^2.89.0",
-    "astro": "^5.15.4",
+    "astro": "^5.16.6",
     "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
