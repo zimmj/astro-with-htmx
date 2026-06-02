@@ -47,7 +47,7 @@ Uses Supabase for authentication with cookie-based sessions:
 2. Supabase client configured in [src/lib/supabase.ts](src/lib/supabase.ts) with env vars
 3. Session tokens stored in cookies: `sb-access-token` and `sb-refresh-token`
 4. Protected pages check for cookies and redirect if missing
-5. **Important**: Use `AstroContainer` from `astro/container` to render Astro components (like Alert) in API routes
+5. **Important**: Use `experimental_AstroContainer` from `astro/container` to render Astro components (like Alert) in API routes (API is still experimental in Astro 6)
 
 ### API Response Patterns for HTMX
 When building API endpoints that work with HTMX:

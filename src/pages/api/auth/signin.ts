@@ -1,4 +1,4 @@
-import { AstroContainer } from 'astro/container';
+import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import { supabase } from '../../../lib/supabase';
 import Alert from '../../../components/ui/Alert.astro';
 import type { APIRoute } from 'astro';
