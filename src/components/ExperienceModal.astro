@@ -27,6 +27,9 @@ const { timelineItemsHtml } = Astro.props as Props;
     </div>
 
     <!-- Vertical Timeline -->
-    <div class="space-y-8" set:html={timelineItemsHtml} />
+    <div class="relative">
+      <div class="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
+      <div class="space-y-8" set:html={timelineItemsHtml} />
+    </div>
   </div>
 </div>

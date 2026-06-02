@@ -14,28 +14,28 @@ const colorClasses = {
   emerald: {
     dot: 'bg-emerald-500',
     border: 'border-emerald-500',
-    badge: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500',
+    badge: 'text-emerald-600 dark:text-emerald-400',
     gradient: 'from-emerald-50 to-white dark:from-emerald-900/10 dark:to-gray-800/50',
     cardBorder: 'border-emerald-200 dark:border-emerald-700/50',
   },
   blue: {
     dot: 'bg-blue-500',
     border: 'border-blue-500',
-    badge: 'text-blue-600 dark:text-blue-400 bg-blue-500',
+    badge: 'text-blue-600 dark:text-blue-400',
     gradient: 'from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800/50',
     cardBorder: 'border-blue-200 dark:border-blue-700/50',
   },
   purple: {
     dot: 'bg-purple-500',
     border: 'border-purple-500',
-    badge: 'text-purple-600 dark:text-purple-400 bg-purple-500',
+    badge: 'text-purple-600 dark:text-purple-400',
     gradient: 'from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-800/50',
     cardBorder: 'border-purple-200 dark:border-purple-700/50',
   },
   amber: {
     dot: 'bg-amber-500',
     border: 'border-amber-500',
-    badge: 'text-amber-600 dark:text-amber-400 bg-amber-500',
+    badge: 'text-amber-600 dark:text-amber-400',
     gradient: 'from-amber-50 to-white dark:from-amber-900/10 dark:to-gray-800/50',
     cardBorder: 'border-amber-200 dark:border-amber-700/50',
   },
@@ -44,9 +44,18 @@ const colorClasses = {
 const colors = colorClasses[color];
 ---
 
-<div class="flex gap-6 md:gap-12">
-  <!-- Left: Timeline & Keywords -->
-  <div class="flex-shrink-0 w-40 md:w-48 relative">
+<div class="flex gap-4 md:gap-8 items-start">
+  <!-- Dot column (continuous line provided by parent) -->
+  <div class="flex-shrink-0 w-4 relative z-10 mt-1">
+    <div class={`w-4 h-4 ${colors.dot} rounded-full border-4 border-white dark:border-gray-800 shadow-lg`}>
+      {color === 'emerald' && (
+        <div class={`absolute inset-0 ${colors.dot} rounded-full animate-ping opacity-75`}></div>
+      )}
+    </div>
+  </div>
+
+  <!-- Keywords column -->
+  <div class="flex-shrink-0 w-36 md:w-44">
     <div class="sticky top-4 space-y-2">
       {badge && (
         <div class="flex items-center gap-2">
@@ -65,24 +74,15 @@ const colors = colorClasses[color];
     </div>
   </div>
 
-  <!-- Right: Content with Timeline -->
-  <div class="flex-1 pb-8 relative">
-    <!-- Timeline dot -->
-    <div class={`absolute -left-3 top-1 w-4 h-4 ${colors.dot} rounded-full border-4 border-white dark:border-gray-800 shadow-lg z-10`}>
-      {color === 'emerald' && (
-        <div class={`absolute inset-0 ${colors.dot} rounded-full animate-ping opacity-75`}></div>
-      )}
-    </div>
-
-    <div class={`border-l-2 ${colors.border} pl-6 md:pl-8`}>
-      <div class={`bg-gradient-to-br ${colors.gradient} rounded-xl p-6 border ${colors.cardBorder}`}>
-        <h4 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
-          {heading}
-        </h4>
-        <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-          {description}
-        </p>
-      </div>
+  <!-- Content column -->
+  <div class="flex-1 pb-8">
+    <div class={`bg-gradient-to-br ${colors.gradient} rounded-xl p-6 border ${colors.cardBorder}`}>
+      <h4 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
+        {heading}
+      </h4>
+      <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+        {description}
+      </p>
     </div>
   </div>
 </div>
