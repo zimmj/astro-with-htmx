@@ -1,0 +1,32 @@
+---
+interface Props {
+  timelineItemsHtml: string;
+}
+
+const { timelineItemsHtml } = Astro.props as Props;
+---
+
+<div data-modal class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+  <div class="relative max-w-5xl w-full max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+    <button
+      onclick="this.closest('[data-modal]').remove()"
+      class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors z-10"
+    >
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <div class="mb-8 flex items-center gap-3">
+      <div class="rounded-lg bg-emerald-100 p-3 dark:bg-emerald-900">
+        <svg class="h-8 w-8 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+      </div>
+      <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Experience & Journey</h2>
+    </div>
+
+    <!-- Vertical Timeline -->
+    <div class="space-y-8" set:html={timelineItemsHtml} />
+  </div>
+</div>
