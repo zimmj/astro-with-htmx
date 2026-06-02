@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an Astro SSR application with HTMX for interactive forms, Supabase for authentication, and Tailwind CSS for styling. The project uses server-side rendering (`output: 'server'`) with the Netlify adapter for deployment.
+This is an Astro 6 SSR application with HTMX for interactive forms, Supabase for authentication, and Tailwind CSS for styling. The project uses server-side rendering (`output: 'server'`) with the Netlify adapter for deployment.
+
+**Requirements:**
+- Node.js 22.12.0 or higher (see `.nvmrc`)
+- pnpm package manager
 
 ## Development Commands
 
@@ -43,7 +47,7 @@ Uses Supabase for authentication with cookie-based sessions:
 2. Supabase client configured in [src/lib/supabase.ts](src/lib/supabase.ts) with env vars
 3. Session tokens stored in cookies: `sb-access-token` and `sb-refresh-token`
 4. Protected pages check for cookies and redirect if missing
-5. **Important**: Use `experimental_AstroContainer` to render Astro components (like Alert) in API routes
+5. **Important**: Use `AstroContainer` from `astro/container` to render Astro components (like Alert) in API routes
 
 ### API Response Patterns for HTMX
 When building API endpoints that work with HTMX:
