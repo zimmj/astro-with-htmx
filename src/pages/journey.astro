@@ -1,0 +1,134 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LocationBadge from '../components/LocationBadge.astro';
+import PolarstepsTripEmbed from '../components/PolarstepsTripEmbed.astro';
+import { currentLocation, journeyHighlights, journeyStats, polarsteps } from '../lib/journey';
+import { getLivePolarstepsData } from '../lib/polarsteps-api';
+
+const posts = await getCollection('writing', ({ data }) => import.meta.env.DEV || !data.draft);
+const live = await getLivePolarstepsData(polarsteps.username);
+
+const displayLocation = live?.currentLocation
+  ? { city: live.currentLocation.name, country: live.currentLocation.country }
+  : currentLocation;
+
+const displayStats = live
+  ? [
+      { label: 'Countries visited', value: String(live.stats.countryCount) },
+      { label: 'Trips taken', value: String(live.stats.tripCount) },
+      {
+        label: 'Distance traveled',
+        value: live.stats.kmCount ? `${Math.round(live.stats.kmCount).toLocaleString()} km` : '—',
+      },
+    ]
+  : journeyStats;
+
+function writingLinkFor(slug?: string) {
+  if (!slug) return undefined;
+  return posts.find((post) => post.id === slug);
+}
+---
+
+<BaseLayout
+  title="Journey"
+  description="Following the nomadic journey around the world — tracked on Polarsteps, with the meaning added here."
+>
+  <main class="container mx-auto min-h-screen px-4 py-12 md:py-20">
+    <!-- Hero -->
+    <header class="mx-auto mb-6 max-w-2xl text-center">
+      <h1 class="mb-3 text-4xl font-bold text-gray-900 md:text-5xl dark:text-white">
+        Follow my journey around the world
+      </h1>
+      <p class="mb-6 text-lg text-gray-600 dark:text-gray-400">
+        Polarsteps handles the tracking — pins, routes, photos as they happen. This page is where I
+        add the meaning: what each place taught me, and the writing it inspired.
+      </p>
+      <div class="flex justify-center">
+        <LocationBadge city={displayLocation.city} country={displayLocation.country} />
+      </div>
+    </header>
+
+    <!-- Stats + full journey CTA -->
+    <div
+      class="mx-auto mb-10 flex max-w-3xl flex-col gap-6 overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-lg sm:flex-row sm:items-center sm:justify-between dark:border-gray-700 dark:bg-gray-800"
+    >
+      <div
+        class="grid flex-1 grid-cols-1 divide-y divide-gray-200 sm:grid-cols-3 sm:divide-x sm:divide-y-0 dark:divide-gray-700"
+      >
+        {
+          displayStats.map((stat) => (
+            <div class="px-6 py-2 text-center first:pl-0 sm:py-0">
+              <p class="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+            </div>
+          ))
+        }
+      </div>
+      <a
+        href={polarsteps.profileUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white transition-transform hover:scale-105 hover:bg-blue-700"
+      >
+        View full journey
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
+      </a>
+    </div>
+
+    {
+      live?.featuredTrip && (
+        <div class="mb-16">
+          <PolarstepsTripEmbed url={live.featuredTrip.url} title={live.featuredTrip.name} />
+        </div>
+      )
+    }
+
+    <!-- Highlights -->
+    <section class="mx-auto max-w-3xl">
+      <h2 class="mb-2 text-3xl font-bold text-gray-900 dark:text-white">Highlights</h2>
+      <p class="mb-8 text-gray-600 dark:text-gray-400">
+        Favorite places along the way, and what each one taught me.
+      </p>
+
+      <div class="space-y-6">
+        {
+          journeyHighlights.map((highlight) => {
+            const relatedPost = writingLinkFor(highlight.writingSlug);
+            return (
+              <article class="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                <div class="mb-2 flex items-baseline justify-between gap-4">
+                  <h3 class="text-xl font-bold text-gray-900 dark:text-white">{highlight.place}</h3>
+                  <span class="text-sm text-gray-500 dark:text-gray-400">{highlight.country}</span>
+                </div>
+                <p class="text-gray-600 dark:text-gray-400">{highlight.insight}</p>
+                {relatedPost && (
+                  <a
+                    href={`/writing/${relatedPost.id}`}
+                    class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    Read the piece it inspired
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </a>
+                )}
+              </article>
+            );
+          })
+        }
+      </div>
+    </section>
+  </main>
+</BaseLayout>
