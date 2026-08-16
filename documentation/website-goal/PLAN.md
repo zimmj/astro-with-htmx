@@ -4,11 +4,13 @@
 
 A knowledge-sharing and ideas-driven website that documents the journey of a digital nomad software engineer. Focus on thoughtful writing, observations, and insights at the intersection of technology, travel, and personal growth.
 
-**This is NOT about:**
+**This is NOT the front door:**
 - Traditional portfolio/projects
 - Career ladder climbing
 - Selling services
 - Showing off accomplishments
+
+A developer-portfolio page still exists (see **Portfolio** under Core Pages) for people who land here specifically looking for a resume/work history. But it is a secondary page, not the entry point — Home leads with the journey.
 
 **This IS about:**
 - Thinking out loud
@@ -22,39 +24,25 @@ A knowledge-sharing and ideas-driven website that documents the journey of a dig
 ## Core Pages
 
 ### 1. Home (`/`)
-**Purpose**: First impression and gateway to content
+**Purpose**: Lead with the journey — first impression is "nomad who thinks," not "developer for hire"
 
 **Content:**
 - Compelling headline about learning, exploring, thinking
-- "Currently in [City, Country]" badge with link to Polarsteps
+- "Currently in [City, Country]" badge with link to Polarsteps (see Polarsteps Integration Strategy)
 - Brief introduction (2-3 sentences about who you are)
-- Latest thought/article preview
-- Quick navigation to main sections
-- Call-to-action: "Read my thoughts", "Follow my journey"
+- Journey highlight or two — a favorite place / recent leg of the trip, teasing the full Journey page
+- Latest thought/article preview (from Writing)
+- Quick navigation to main sections (Writing, Journey, Library)
+- Call-to-action: "Follow my journey", "Read my thoughts"
+- Quiet link to Portfolio for anyone specifically looking for dev work history
 
 **Tone**: Welcoming, curious, authentic
 
----
-
-### 2. About (`/about`)
-**Purpose**: Your story and philosophy
-
-**Content:**
-- Personal journey: how you became a developer + nomad
-- What fascinates you (technology, culture, systems, patterns)
-- How travel shapes your thinking and work
-- Your philosophy on remote work, learning, and life
-- What you're exploring right now
-- Why you share knowledge
-- Contact/social links
-
-**Tone**: Personal but not diary-like, vulnerable, thoughtful
-
-**Note**: Less resume, more personal philosophy
+**Note**: This replaces the current homepage, which is the About/Projects/Experience/Contact card grid — that content moves to Portfolio (see below).
 
 ---
 
-### 3. Writing (`/writing` or `/thoughts`)
+### 2. Writing (`/writing` or `/thoughts`)
 **Purpose**: Main content hub - your brain on the internet
 
 **Content Types:**
@@ -90,7 +78,7 @@ A knowledge-sharing and ideas-driven website that documents the journey of a dig
 
 ---
 
-### 4. Journey (`/journey`)
+### 3. Journey (`/journey`)
 **Purpose**: Visual story of your nomadic life
 
 **Integration with Polarsteps:**
@@ -110,7 +98,7 @@ A knowledge-sharing and ideas-driven website that documents the journey of a dig
 
 ---
 
-### 5. Library (`/library` or `/knowledge`)
+### 4. Library (`/library` or `/knowledge`)
 **Purpose**: Curated resources and knowledge you want to share
 
 **Sections:**
@@ -130,7 +118,7 @@ A knowledge-sharing and ideas-driven website that documents the journey of a dig
 
 ---
 
-### 6. Contact (`/contact`)
+### 5. Contact (`/contact`)
 **Purpose**: Make meaningful connections
 
 **Content:**
@@ -143,6 +131,19 @@ A knowledge-sharing and ideas-driven website that documents the journey of a dig
 - Optional: "Buy me a coffee" if someone wants to support
 
 **Tone**: Open, friendly, clear boundaries
+
+---
+
+### 6. Portfolio (`/portfolio`)
+**Purpose**: Secondary page for recruiters/collaborators specifically looking for a traditional developer profile — also the sole home for personal-story/background content (there is no separate About page)
+
+**Content:**
+- The current homepage content, moved here largely as-is: name/title header, GitHub/LinkedIn links, and card-based sections for About (personal journey, background, what fascinates you as a developer), Projects, Experience (the interactive timeline), and Contact
+- Not linked from primary nav — reachable via a quiet link from Home and/or the site footer
+
+**Tone**: Standard professional portfolio — this is the one page where "showing off accomplishments" is fine, because it's opt-in
+
+**Status**: Already built (currently living at `/`) — needs to move to `/portfolio` once Home is rebuilt around Journey/Writing
 
 ---
 
@@ -237,13 +238,13 @@ A knowledge-sharing and ideas-driven website that documents the journey of a dig
 
 ### Phase 1: Essential Pages (Launch Ready)
 1. **Home** - Strong first impression with location badge
-2. **About** - Your story and philosophy
-3. **Writing** - Start with 5-8 pieces covering different formats:
+2. **Writing** - Start with 5-8 pieces covering different formats:
    - 1-2 long essays
    - 3-4 observations
    - 1-2 notes or questions
-4. **Journey** - Polarsteps integration + highlights
-5. **Contact** - Simple connection point
+3. **Journey** - Polarsteps integration + highlights
+4. **Contact** - Simple connection point
+5. **Portfolio** - Already built; move to `/portfolio`
 
 **Goal**: Launch with enough content to establish voice and value
 
@@ -315,15 +316,19 @@ A knowledge-sharing and ideas-driven website that documents the journey of a dig
 ## Next Steps
 
 ### Immediate Actions
-1. Set up content collections structure for writing
-2. Create page layouts for core pages
-3. Write initial content (5-8 pieces for Writing section)
-4. Implement Polarsteps integration on Journey page
-5. Set up contact form with HTMX
-6. Deploy and test
+1. ✅ Set up content collections structure for writing (`src/content.config.ts`, `writing` collection)
+2. ✅ Global nav component (Home/Writing/Journey/Library) wired into BaseLayout
+3. ✅ Writing index + `[slug]` page layouts, consuming the collection
+4. Rebuild Home around Journey/Polarsteps + latest writing (replaces current card-grid homepage)
+5. Move current card-grid homepage content to `/portfolio`
+6. Build Journey page (start with manual-config Polarsteps badge, per Implementation Options below)
+7. Build Library page
+8. Write initial content (5-8 pieces for Writing section)
+9. Set up contact form with HTMX
+10. Deploy and test
 
 ### Content Preparation Checklist
-- [ ] Write About page content
+- [ ] Write About/background content for the Portfolio page's About card
 - [ ] Draft 1-2 essays (2000+ words each)
 - [ ] Write 3-4 observations (500-1000 words each)
 - [ ] Create 1-2 short notes or questions
@@ -333,8 +338,12 @@ A knowledge-sharing and ideas-driven website that documents the journey of a dig
 - [ ] Choose social links and contact methods
 
 ### Technical Setup Checklist
-- [ ] Create content collection schema for writing
-- [ ] Build page layouts (Home, About, Writing, Journey, Contact)
+- [x] Create content collection schema for writing
+- [x] Build Writing page layout (index + post)
+- [ ] Rebuild Home around Journey/Polarsteps
+- [ ] Move card-grid content to `/portfolio`
+- [ ] Build Journey page layout
+- [ ] Build Library page layout
 - [ ] Implement HTMX contact form
 - [ ] Add Polarsteps integration
 - [ ] Set up RSS feed for writing
@@ -357,4 +366,4 @@ The goal is not a perfect website, but an honest one that grows with you.
 
 ---
 
-*Last updated: June 2, 2026*
+*Last updated: August 16, 2026*
