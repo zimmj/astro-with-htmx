@@ -2,27 +2,15 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LocationBadge from '../components/LocationBadge.astro';
-import PolarstepsTripEmbed from '../components/PolarstepsTripEmbed.astro';
-import { currentLocation, journeyHighlights, journeyStats, polarsteps } from '../lib/journey';
+import PolarstepsEmbed from '../components/PolarstepsEmbed.astro';
+import { journeyHighlights, polarsteps, toDisplayLocation, toDisplayStats } from '../lib/journey';
 import { getLivePolarstepsData } from '../lib/polarsteps-api';
 
 const posts = await getCollection('writing', ({ data }) => import.meta.env.DEV || !data.draft);
 const live = await getLivePolarstepsData(polarsteps.username);
 
-const displayLocation = live?.currentLocation
-  ? { city: live.currentLocation.name, country: live.currentLocation.country }
-  : currentLocation;
-
-const displayStats = live
-  ? [
-      { label: 'Countries visited', value: String(live.stats.countryCount) },
-      { label: 'Trips taken', value: String(live.stats.tripCount) },
-      {
-        label: 'Distance traveled',
-        value: live.stats.kmCount ? `${Math.round(live.stats.kmCount).toLocaleString()} km` : '—',
-      },
-    ]
-  : journeyStats;
+const displayLocation = toDisplayLocation(live);
+const displayStats = toDisplayStats(live);
 
 function writingLinkFor(slug?: string) {
   if (!slug) return undefined;
@@ -85,7 +73,7 @@ function writingLinkFor(slug?: string) {
     {
       live?.featuredTrip && (
         <div class="mb-16">
-          <PolarstepsTripEmbed url={live.featuredTrip.url} title={live.featuredTrip.name} />
+          <PolarstepsEmbed url={live.featuredTrip.url} title={live.featuredTrip.name} />
         </div>
       )
     }

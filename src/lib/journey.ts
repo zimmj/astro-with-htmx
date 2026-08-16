@@ -1,3 +1,5 @@
+import type { PolarstepsLiveData } from './polarsteps-api';
+
 export const polarsteps = {
   username: 'zimmj',
   profileUrl: 'https://www.polarsteps.com/zimmj',
@@ -18,6 +20,26 @@ export const journeyStats: { label: string; value: string }[] = [
   { label: 'Longest stay', value: '—' },
   { label: 'On the road since', value: '—' },
 ];
+
+/** Stats to show for a page — live Polarsteps numbers when available, the manual config otherwise. */
+export function toDisplayStats(live: PolarstepsLiveData | null): { label: string; value: string }[] {
+  if (!live) return journeyStats;
+  return [
+    { label: 'Countries visited', value: String(live.stats.countryCount) },
+    { label: 'Trips taken', value: String(live.stats.tripCount) },
+    {
+      label: 'Distance traveled',
+      value: live.stats.kmCount ? `${Math.round(live.stats.kmCount).toLocaleString()} km` : '—',
+    },
+  ];
+}
+
+/** Location to show for a page — live Polarsteps location when available, the manual config otherwise. */
+export function toDisplayLocation(live: PolarstepsLiveData | null): { city: string; country: string } {
+  return live?.currentLocation
+    ? { city: live.currentLocation.name, country: live.currentLocation.country }
+    : currentLocation;
+}
 
 export interface JourneyHighlight {
   place: string;

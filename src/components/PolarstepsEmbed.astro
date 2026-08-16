@@ -1,16 +1,13 @@
 ---
 /**
- * There's no official Polarsteps embed widget, so this loads the public
- * trip page directly in an iframe (it sends no X-Frame-Options / CSP
- * frame-ancestors header, so browsers allow it) and crops Polarsteps' own
- * site header out of view by oversizing the iframe and clipping it inside
- * a fixed-height, overflow-hidden wrapper.
- *
- * This is a visual crop, not a real removal — we can't reach into a
- * cross-origin iframe's DOM to strip elements. It's inherently fragile:
- * if Polarsteps changes their header height (or serves a different layout
- * at this container width), the crop will be off. HEADER_CROP_PX is a
- * best guess and likely needs a visual check/tune against the live site.
+ * There's no official Polarsteps embed widget, so this loads a public
+ * Polarsteps page directly in an iframe (it sends no X-Frame-Options / CSP
+ * frame-ancestors header, so browsers allow it) — either a trip page or the
+ * profile page's world map. Renders the page as-is, Polarsteps header
+ * included — we can't reach into a cross-origin iframe's DOM/CSS to strip
+ * it, and proxying the page through our own origin to do so breaks their
+ * app's own data fetching (its API calls have no CORS allowance and would
+ * be blocked once served from a different origin).
  */
 interface Props {
   url: string;
@@ -20,17 +17,9 @@ interface Props {
 }
 
 const { url, title, height = 640 } = Astro.props;
-const HEADER_CROP_PX = 64;
 ---
 
-<div
-  class="overflow-hidden rounded-2xl border border-gray-200 shadow-lg dark:border-gray-700"
-  style={`height: ${height}px;`}
->
-  <iframe
-    src={url}
-    title={title}
-    loading="lazy"
-    class="w-full border-0"
-    style={`height: ${height + HEADER_CROP_PX}px; margin-top: -${HEADER_CROP_PX}px;`}></iframe>
+<div class="overflow-hidden rounded-2xl border border-gray-200 shadow-lg dark:border-gray-700">
+  <iframe src={url} title={title} loading="lazy" class="w-full border-0" style={`height: ${height}px;`}
+  ></iframe>
 </div>

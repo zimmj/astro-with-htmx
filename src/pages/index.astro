@@ -1,5 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import VisitedCountriesMap from '../components/VisitedCountriesMap.astro';
+import { polarsteps, toDisplayStats } from '../lib/journey';
+import { getLivePolarstepsData } from '../lib/polarsteps-api';
+
+const live = await getLivePolarstepsData(polarsteps.username);
+const displayStats = toDisplayStats(live);
 ---
 
 <BaseLayout
@@ -57,6 +63,40 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </a>
       </div>
     </header>
+
+    <!-- Journey: stats + world map -->
+    <section class="mx-auto mb-12 max-w-4xl">
+      <div
+        class="mb-6 flex flex-col gap-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-lg sm:flex-row sm:items-center sm:justify-between dark:border-gray-700 dark:bg-gray-800"
+      >
+        <div
+          class="grid flex-1 grid-cols-1 divide-y divide-gray-200 sm:grid-cols-3 sm:divide-x sm:divide-y-0 dark:divide-gray-700"
+        >
+          {
+            displayStats.map((stat) => (
+              <div class="px-6 py-2 text-center first:pl-0 sm:py-0">
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
+              </div>
+            ))
+          }
+        </div>
+        <a
+          href="/journey"
+          class="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white transition-transform hover:scale-105 hover:bg-blue-700"
+        >
+          Follow the journey
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </a>
+      </div>
+      <VisitedCountriesMap countryTrips={live?.countryTrips ?? {}} />
+    </section>
 
     <!-- Cards Grid -->
     <div class="mx-auto max-w-4xl">

@@ -1,0 +1,58 @@
+---
+/**
+ * A flat, server-rendered SVG world map with visited countries highlighted
+ * and linked to the Polarsteps trip that visited them. No client JS, no
+ * map library shipped to the browser — the country borders are computed
+ * once at request time from static Natural Earth data (see
+ * src/lib/world-map.ts) and rendered as plain <path> elements, wrapped in
+ * <a> for countries with a trip link.
+ */
+import type { FeaturedTrip } from '../lib/polarsteps-api';
+import { getWorldMapPaths, MAP_VIEWBOX, numericIdToName, toIdKeyedTrips } from '../lib/world-map';
+
+interface Props {
+  countryTrips: Record<string, FeaturedTrip>;
+}
+
+const { countryTrips } = Astro.props;
+
+const paths = getWorldMapPaths();
+const tripsById = toIdKeyedTrips(countryTrips);
+---
+
+<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+  <svg viewBox={MAP_VIEWBOX} class="h-auto w-full" role="img" aria-label="Map of countries visited">
+    {
+      paths.map((country) => {
+        const trip = tripsById.get(country.id);
+        const fillClass = trip
+          ? 'fill-blue-500 dark:fill-blue-400'
+          : 'fill-gray-200 dark:fill-gray-700';
+
+        const path = (
+          <path
+            d={country.d}
+            class:list={['text-white dark:text-gray-800', fillClass]}
+            stroke="currentColor"
+            stroke-width="0.5"
+          >
+            {trip && <title>{`${numericIdToName(country.id) ?? ''} — ${trip.name}`.trim()}</title>}
+          </path>
+        );
+
+        return trip ? (
+          <a
+            href={trip.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="cursor-pointer transition-opacity hover:opacity-75"
+          >
+            {path}
+          </a>
+        ) : (
+          path
+        );
+      })
+    }
+  </svg>
+</div>
