@@ -66,11 +66,8 @@ export interface PolarstepsLiveData {
   currentLocation: PolarstepsLocation | null;
   stats: PolarstepsStats;
   featuredTrip: FeaturedTrip | null;
-  /**
-   * Country name -> the trip to link to for that country. When a country
-   * was visited on multiple trips, this points at the most recent one.
-   */
-  countryTrips: Record<string, FeaturedTrip>;
+  /** Country name -> every trip that visited it, oldest first. */
+  countryTrips: Record<string, FeaturedTrip[]>;
 }
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
@@ -134,23 +131,35 @@ function toLiveData(user: RawUser, username: string): PolarstepsLiveData {
   };
 }
 
-/** Country name -> most recent trip that visited it (trips processed oldest-first, so later ones win). */
-function countryTripLinks(trips: RawTrip[], username: string): Record<string, FeaturedTrip> {
+/** Country name -> every trip that visited it, oldest first (a trip counts once per country, however many steps it has there). */
+function countryTripLinks(trips: RawTrip[], username: string): Record<string, FeaturedTrip[]> {
   const byStart = [...trips].sort((a, b) => {
     const aStart = a.start_date ? Date.parse(a.start_date) : 0;
     const bStart = b.start_date ? Date.parse(b.start_date) : 0;
     return aStart - bStart;
   });
 
-  const links: Record<string, FeaturedTrip> = {};
+  const byCountry = new Map<string, Map<string, FeaturedTrip>>();
   for (const trip of byStart) {
     const featured = toFeaturedTrip(trip, username);
     if (!featured) continue;
+
+    const countriesInTrip = new Set<string>();
     for (const step of trip.steps ?? []) {
       if (step.is_deleted) continue;
       const country = step.location?.country;
-      if (country) links[country] = featured;
+      if (country) countriesInTrip.add(country);
     }
+
+    for (const country of countriesInTrip) {
+      if (!byCountry.has(country)) byCountry.set(country, new Map());
+      byCountry.get(country)!.set(featured.url, featured);
+    }
+  }
+
+  const links: Record<string, FeaturedTrip[]> = {};
+  for (const [country, tripsByUrl] of byCountry) {
+    links[country] = [...tripsByUrl.values()];
   }
   return links;
 }

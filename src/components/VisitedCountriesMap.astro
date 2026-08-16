@@ -1,17 +1,22 @@
 ---
 /**
  * A flat, server-rendered SVG world map with visited countries highlighted
- * and linked to the Polarsteps trip that visited them. No client JS, no
- * map library shipped to the browser — the country borders are computed
- * once at request time from static Natural Earth data (see
- * src/lib/world-map.ts) and rendered as plain <path> elements, wrapped in
- * <a> for countries with a trip link.
+ * and linked to the Polarsteps trip(s) that visited them. No client JS, no
+ * map library shipped to the browser for the map itself — the country
+ * borders are computed once at request time from static Natural Earth
+ * data (see src/lib/world-map.ts) and rendered as plain <path> elements.
+ *
+ * A country visited on exactly one trip is a plain <a> (works with no JS).
+ * A country visited on multiple trips can't have multiple hrefs on one
+ * element, so it's a clickable <g> that opens a small popover listing each
+ * trip. Pan/zoom (wheel, drag, +/- buttons) is needed to make small
+ * countries actually clickable — both need the inline script below.
  */
 import type { FeaturedTrip } from '../lib/polarsteps-api';
 import { getWorldMapPaths, MAP_VIEWBOX, numericIdToName, toIdKeyedTrips } from '../lib/world-map';
 
 interface Props {
-  countryTrips: Record<string, FeaturedTrip>;
+  countryTrips: Record<string, FeaturedTrip[]>;
 }
 
 const { countryTrips } = Astro.props;
@@ -20,39 +25,302 @@ const paths = getWorldMapPaths();
 const tripsById = toIdKeyedTrips(countryTrips);
 ---
 
-<div class="overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-  <svg viewBox={MAP_VIEWBOX} class="h-auto w-full" role="img" aria-label="Map of countries visited">
-    {
-      paths.map((country) => {
-        const trip = tripsById.get(country.id);
-        const fillClass = trip
-          ? 'fill-blue-500 dark:fill-blue-400'
-          : 'fill-gray-200 dark:fill-gray-700';
+<div class="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+  <div class="absolute right-6 top-6 z-10 flex flex-col overflow-hidden rounded-lg border border-gray-200 shadow-sm dark:border-gray-700">
+    <button
+      type="button"
+      data-zoom-in
+      aria-label="Zoom in"
+      class="flex h-8 w-8 items-center justify-center bg-white text-lg font-medium text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+    >
+      +
+    </button>
+    <button
+      type="button"
+      data-zoom-out
+      aria-label="Zoom out"
+      class="flex h-8 w-8 items-center justify-center border-t border-gray-200 bg-white text-lg font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+    >
+      −
+    </button>
+    <button
+      type="button"
+      data-zoom-reset
+      aria-label="Reset zoom"
+      class="flex h-8 w-8 items-center justify-center border-t border-gray-200 bg-white text-xs font-medium text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+    >
+      ⟲
+    </button>
+  </div>
 
-        const path = (
-          <path
-            d={country.d}
-            class:list={['text-white dark:text-gray-800', fillClass]}
-            stroke="currentColor"
-            stroke-width="0.5"
-          >
-            {trip && <title>{`${numericIdToName(country.id) ?? ''} — ${trip.name}`.trim()}</title>}
-          </path>
-        );
+  <div id="map-viewport-container" class="touch-none cursor-grab active:cursor-grabbing">
+    <svg
+      id="world-map-svg"
+      viewBox={MAP_VIEWBOX}
+      class="h-auto w-full"
+      role="img"
+      aria-label="Map of countries visited — scroll, drag, or use the +/- buttons to zoom"
+    >
+      <g id="map-viewport">
+        {
+          paths.map((country) => {
+            const trips = tripsById.get(country.id) ?? [];
+            const countryName = numericIdToName(country.id) ?? '';
+            const fillClass =
+              trips.length > 0
+                ? 'fill-blue-500 dark:fill-blue-400'
+                : 'fill-gray-200 dark:fill-gray-700';
 
-        return trip ? (
-          <a
-            href={trip.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="cursor-pointer transition-opacity hover:opacity-75"
-          >
-            {path}
-          </a>
-        ) : (
-          path
-        );
-      })
-    }
-  </svg>
+            const path = (
+              <path
+                d={country.d}
+                class:list={['text-white dark:text-gray-800', fillClass]}
+                stroke="currentColor"
+                stroke-width="0.5"
+              >
+                {trips.length > 0 && (
+                  <title>
+                    {trips.length === 1
+                      ? `${countryName} — ${trips[0].name}`
+                      : `${countryName} (${trips.length} trips)`}
+                  </title>
+                )}
+              </path>
+            );
+
+            if (trips.length === 0) return path;
+
+            if (trips.length === 1) {
+              return (
+                <a
+                  href={trips[0].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="cursor-pointer transition-opacity hover:opacity-75"
+                >
+                  {path}
+                </a>
+              );
+            }
+
+            return (
+              <g
+                tabindex="0"
+                role="button"
+                aria-haspopup="true"
+                aria-label={`${countryName} — ${trips.length} trips, choose one`}
+                data-country-trips
+                data-country-name={countryName}
+                data-trips={JSON.stringify(trips)}
+                class="cursor-pointer transition-opacity hover:opacity-75 focus:opacity-75 focus:outline-none"
+              >
+                {path}
+              </g>
+            );
+          })
+        }
+      </g>
+    </svg>
+  </div>
 </div>
+
+<div id="country-trip-popover" class="fixed z-50 hidden -translate-x-1/2 -translate-y-full pb-2">
+  <div class="min-w-40 rounded-lg border border-gray-200 bg-white p-2 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+    <p data-popover-title class="mb-1 px-2 text-xs font-medium text-gray-500 dark:text-gray-400"></p>
+    <div data-popover-links class="flex flex-col"></div>
+  </div>
+</div>
+
+<script>
+  // --- Pan/zoom, so small countries are actually clickable ---
+  const container = document.getElementById('map-viewport-container');
+  const svg = document.getElementById('world-map-svg') as unknown as SVGSVGElement | null;
+  const viewport = document.getElementById('map-viewport') as unknown as SVGGElement | null;
+
+  const VIEW_WIDTH = 960;
+  const VIEW_HEIGHT = 500;
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 8;
+
+  let scale = 1;
+  let tx = 0;
+  let ty = 0;
+
+  function clampTranslate() {
+    const scaledW = VIEW_WIDTH * scale;
+    const scaledH = VIEW_HEIGHT * scale;
+    const minTx = Math.min(0, VIEW_WIDTH - scaledW);
+    const minTy = Math.min(0, VIEW_HEIGHT - scaledH);
+    tx = Math.min(0, Math.max(tx, minTx));
+    ty = Math.min(0, Math.max(ty, minTy));
+  }
+
+  function applyTransform() {
+    viewport?.setAttribute('transform', `translate(${tx} ${ty}) scale(${scale})`);
+  }
+
+  function clientToSvgPoint(clientX: number, clientY: number) {
+    if (!svg) return { x: 0, y: 0 };
+    const pt = svg.createSVGPoint();
+    pt.x = clientX;
+    pt.y = clientY;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return { x: 0, y: 0 };
+    const svgPt = pt.matrixTransform(ctm.inverse());
+    return { x: svgPt.x, y: svgPt.y };
+  }
+
+  function zoomAt(clientX: number, clientY: number, factor: number) {
+    const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale * factor));
+    if (newScale === scale) return;
+    const { x: ux, y: uy } = clientToSvgPoint(clientX, clientY);
+    const ox = (ux - tx) / scale;
+    const oy = (uy - ty) / scale;
+    scale = newScale;
+    tx = ux - ox * scale;
+    ty = uy - oy * scale;
+    clampTranslate();
+    applyTransform();
+  }
+
+  function resetZoom() {
+    scale = 1;
+    tx = 0;
+    ty = 0;
+    applyTransform();
+  }
+
+  document.querySelector('[data-zoom-in]')?.addEventListener('click', () => {
+    const rect = svg?.getBoundingClientRect();
+    if (rect) zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 1.5);
+  });
+  document.querySelector('[data-zoom-out]')?.addEventListener('click', () => {
+    const rect = svg?.getBoundingClientRect();
+    if (rect) zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 1 / 1.5);
+  });
+  document.querySelector('[data-zoom-reset]')?.addEventListener('click', resetZoom);
+
+  container?.addEventListener(
+    'wheel',
+    (event) => {
+      event.preventDefault();
+      const factor = event.deltaY < 0 ? 1.4 : 1 / 1.4;
+      zoomAt(event.clientX, event.clientY, factor);
+    },
+    { passive: false }
+  );
+
+  let panning = false;
+  let dragged = false;
+  let lastX = 0;
+  let lastY = 0;
+
+  let activePointerId: number | null = null;
+
+  container?.addEventListener('pointerdown', (event) => {
+    panning = true;
+    dragged = false;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    activePointerId = event.pointerId;
+  });
+
+  container?.addEventListener('pointermove', (event) => {
+    if (!panning) return;
+    const dx = event.clientX - lastX;
+    const dy = event.clientY - lastY;
+
+    if (!dragged) {
+      if (Math.abs(dx) <= 3 && Math.abs(dy) <= 3) return;
+      // Only capture once an actual drag starts — capturing on every
+      // pointerdown retargets the resulting click at `container` instead
+      // of the country under the cursor, silently breaking plain clicks.
+      dragged = true;
+      if (activePointerId !== null) container.setPointerCapture(activePointerId);
+    }
+
+    const ctm = svg?.getScreenCTM();
+    const screenToSvgScale = ctm?.a || 1;
+    tx += dx / screenToSvgScale;
+    ty += dy / screenToSvgScale;
+    lastX = event.clientX;
+    lastY = event.clientY;
+    clampTranslate();
+    applyTransform();
+  });
+
+  function endPan() {
+    panning = false;
+    if (dragged && activePointerId !== null) {
+      container?.releasePointerCapture(activePointerId);
+    }
+    activePointerId = null;
+  }
+  container?.addEventListener('pointerup', endPan);
+  container?.addEventListener('pointercancel', endPan);
+
+  // A drag that ends on a country shouldn't also trigger its link/popover.
+  container?.addEventListener(
+    'click',
+    (event) => {
+      if (dragged) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      dragged = false;
+    },
+    true
+  );
+
+  // --- Multi-trip country popover ---
+  const popover = document.getElementById('country-trip-popover');
+  const titleEl = popover?.querySelector<HTMLParagraphElement>('[data-popover-title]');
+  const linksEl = popover?.querySelector<HTMLDivElement>('[data-popover-links]');
+
+  function closePopover() {
+    popover?.classList.add('hidden');
+  }
+
+  function openPopover(target: Element, countryName: string, trips: { url: string; name: string }[]) {
+    if (!popover || !titleEl || !linksEl) return;
+
+    titleEl.textContent = countryName;
+    linksEl.innerHTML = '';
+    for (const trip of trips) {
+      const a = document.createElement('a');
+      a.href = trip.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = trip.name;
+      a.className =
+        'rounded px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700';
+      linksEl.appendChild(a);
+    }
+
+    const rect = target.getBoundingClientRect();
+    popover.style.left = `${rect.left + rect.width / 2}px`;
+    popover.style.top = `${rect.top}px`;
+    popover.classList.remove('hidden');
+  }
+
+  document.querySelectorAll('[data-country-trips]').forEach((el) => {
+    el.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const trips = JSON.parse(el.getAttribute('data-trips') ?? '[]');
+      const countryName = el.getAttribute('data-country-name') ?? '';
+      openPopover(el, countryName, trips);
+    });
+    el.addEventListener('keydown', (event) => {
+      const key = (event as KeyboardEvent).key;
+      if (key === 'Enter' || key === ' ') {
+        event.preventDefault();
+        el.dispatchEvent(new Event('click'));
+      }
+    });
+  });
+
+  document.addEventListener('click', closePopover);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closePopover();
+  });
+</script>

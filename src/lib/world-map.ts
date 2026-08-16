@@ -56,12 +56,14 @@ export function countryNameToNumericId(name: string): string | null {
   return countries.alpha3ToNumeric(alpha3) ?? null;
 }
 
-/** Re-keys a Polarsteps country-name -> trip map by numeric ISO code, for matching against map paths. */
-export function toIdKeyedTrips(countryTrips: Record<string, FeaturedTrip>): Map<string, FeaturedTrip> {
-  const byId = new Map<string, FeaturedTrip>();
-  for (const [name, trip] of Object.entries(countryTrips)) {
+/** Re-keys a Polarsteps country-name -> trips map by numeric ISO code, for matching against map paths. */
+export function toIdKeyedTrips(
+  countryTrips: Record<string, FeaturedTrip[]>
+): Map<string, FeaturedTrip[]> {
+  const byId = new Map<string, FeaturedTrip[]>();
+  for (const [name, trips] of Object.entries(countryTrips)) {
     const id = countryNameToNumericId(name);
-    if (id) byId.set(id, trip);
+    if (id) byId.set(id, trips);
   }
   return byId;
 }
