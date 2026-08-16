@@ -75,3 +75,16 @@ Defined in [src/env.d.ts](src/env.d.ts) for type safety.
 
 ### Styling
 Uses Tailwind CSS with dark mode support (`dark:` variants available). The BaseLayout includes color scheme meta tag for system preference detection.
+
+### Astro JSX Types
+Astro defines its HTML attribute types inside `declare namespace astroHTML.JSX` in `astro-jsx.d.ts`. These types are **not globally available** in `.astro` frontmatter scripts — use the full namespace path when typing component props:
+
+```typescript
+// In a component Props interface:
+interface Props {
+  type?: astroHTML.JSX.HTMLInputTypeAttribute; // ✓ correct
+  type?: string;                               // ✗ too wide — JSX checker rejects it
+}
+```
+
+Common types from this namespace: `HTMLInputTypeAttribute`, `HTMLAttributes`, `IntrinsicElements`. No import needed — the namespace is ambient via `astro-jsx.d.ts`.

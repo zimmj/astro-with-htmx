@@ -232,7 +232,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         });
 
         // Close on Escape key
-        const handleEscape = (e) => {
+        const handleEscape = (e: KeyboardEvent) => {
           if (e.key === 'Escape') {
             modal.remove();
             document.removeEventListener('keydown', handleEscape);

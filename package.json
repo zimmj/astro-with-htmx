@@ -14,22 +14,22 @@
     "type-check": "astro check"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.9",
-    "@astrojs/netlify": "^7.0.9",
-    "@astrojs/node": "^10.1.2",
-    "@astrojs/tailwind": "^6.0.2",
-    "@supabase/supabase-js": "^2.80.0",
-    "astro": "^6.4.2",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.9.3"
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/netlify": "^8.2.1",
+    "@astrojs/node": "^11.1.2",
+    "@supabase/supabase-js": "^2.112.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.2",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.60.0",
-    "@typescript-eslint/parser": "^8.60.0",
-    "eslint": "^10.4.1",
-    "eslint-plugin-astro": "^1.7.0",
-    "prettier": "^3.8.3",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
+    "@typescript-eslint/parser": "^8.67.0",
+    "eslint": "^10.8.1",
+    "eslint-plugin-astro": "^3.1.0",
+    "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",
-    "prettier-plugin-tailwindcss": "^0.6.11"
+    "prettier-plugin-tailwindcss": "^0.6.14"
   }
 }
