@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Nav from '../components/Nav.astro';
 
 interface Props {
   title?: string;
@@ -59,6 +60,7 @@ const pageTitle = title.includes('Virtual Visual') ? title : `${title} | Virtual
     <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
   </head>
   <body class="min-h-screen bg-white text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-100">
+    <Nav />
     <slot />
   </body>
 </html>
